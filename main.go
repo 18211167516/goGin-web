@@ -4,7 +4,6 @@ import (
 	"gintest/routes"
 	"gintest/config"
 	"fmt"
-	//"net/http"
 )
 
 func main() {
