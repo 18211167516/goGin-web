@@ -1,17 +1,14 @@
 package controllers
 
 import (
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"gintest/App/models"
 	"gintest/util"
+
 	"github.com/astaxie/beego/validation"
-	"strconv"
 )
-
-type user struct{
-	
-}
-
 
 //获取多个文章标签
 func GetTags(c *gin.Context) {
@@ -77,8 +74,64 @@ func AddTag(c *gin.Context) {
 
 //修改文章标签
 func EditTag(c *gin.Context) {
+	var data = make(map[string]interface{})
+
+	id,_:= strconv.Atoi(c.Param("id"))
+	name := c.PostForm("name")
+	code,msg:= 200,"成功"
+	valid := validation.Validation{}
+	state := -1;
+	if arg := c.PostForm("state"); arg != "" {
+        state,_= strconv.Atoi(arg)
+        valid.Range(state, 0, 1, "state").Message("状态只允许0或1")
+    }
+	valid.Required(id,"id").Message("ID不能为空")
+	valid.MaxSize(name, 100, "name").Message("名称最长为100字符")
+	if ! valid.HasErrors() {
+        if models.ExistTagByID(id) {
+			if(name != ""){
+				data["name"] = name;
+			}
+			if(state != -1){
+				data["state"] = state;
+			}
+			models.EditTag(id, data)
+			msg = "编辑成功";
+		} else{
+			code,msg = 400,"ID不存在";
+		}
+	}else{
+		code,msg = 500,valid.Errors[0].Message
+	}
+
+	c.JSON(200, gin.H{
+		"code" : code,
+		"msg" : msg,
+		"data" :make(map[string]string),
+	})
+	
 }
 
 //删除文章标签
 func DeleteTag(c *gin.Context) {
+	id,_:= strconv.Atoi(c.Param("id"))
+	code,msg:= 200,"成功"
+	valid := validation.Validation{}
+	valid.Required(id,"id").Message("ID不能为空")
+	if ! valid.HasErrors() {
+        if models.ExistTagByID(id) {
+			models.DeleteTag(id)
+			msg = "删除成功";
+		} else{
+			code,msg = 400,"ID不存在";
+		}
+	}else{
+		code,msg = 500,valid.Errors[0].Message
+	}
+
+	c.JSON(200, gin.H{
+		"code" : code,
+		"msg" : msg,
+		"data" :make(map[string]string),
+	})
 }
