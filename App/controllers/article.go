@@ -4,10 +4,10 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/astaxie/beego/validation"
+
 	"gintest/App/models"
 	"gintest/util"
-
-	"github.com/astaxie/beego/validation"
 )
 
 //获取单个文章
@@ -17,22 +17,22 @@ func GetArticle(c *gin.Context) {
 	valid := validation.Validation{}
 	valid.Min(id, 1, "id").Message("ID必须大于0")
 	
-	code,msg := 200,"查询成功"
+	code,msg := util.SUCCESS,"查询成功"
 	var data interface {}
 	if ! valid.HasErrors() {
         if models.ExistArticleByID(id) {
 			data = models.GetArticle(id)
 		} else{
-			code,msg = 400,"文章不存在"
+			code,msg = util.CUSTOM_ERROR,"文章不存在"
 		}
 
 	}else{
-		code,msg = 500,valid.Errors[0].Message
+		code,msg = util.CUSTOM_ERROR,valid.Errors[0].Message
 	}
 
-	c.JSON(code, gin.H{
-        "code" : code,
-        "msg" : msg,
+	c.JSON(200, gin.H{
+        "error_code" : code,
+        "msg" : util.GetMsg(code,msg),
         "data" : data,
     })
 }
@@ -62,7 +62,7 @@ func GetArticles(c *gin.Context) {
     data["total"] = models.GetArticleTotal(maps)
 
     c.JSON(200, gin.H{
-        "code" : 200,
+        "error_code" : 0,
         "msg" : "查询成功",
         "data" : data,
     })
@@ -87,7 +87,7 @@ func AddArticle(c *gin.Context) {
     valid.Required(createdBy, "created_by").Message("创建人不能为空")
 	valid.Range(state, 0, 1, "state").Message("状态只允许0或1")
 
-	code,msg := 200,"添加成功"
+	code,msg := 0,"添加成功"
 
 	if ! valid.HasErrors() {
         if models.ExistTagByID(tagId) {
@@ -101,24 +101,114 @@ func AddArticle(c *gin.Context) {
 			models.AddArticle(data)
 			
 		} else{
-			code,msg = 400,"标签ID不存在"
+			code,msg = util.CUSTOM_ERROR,"标签ID不存在"
 		}
 
 	}else{
-		code,msg = 500,valid.Errors[0].Message
+		code,msg = util.CUSTOM_ERROR,valid.Errors[0].Message
 	}
 
-	c.JSON(code, gin.H{
-		"code" : code,
-		"msg" : msg,
+	c.JSON(200, gin.H{
+		"error_code" : code,
+		"msg" : util.GetMsg(code,msg),
 		"data" :make(map[string]string),
 	})	
 }
 
 //修改文章
 func EditArticle(c *gin.Context) {
+	id,_:= strconv.Atoi(c.Param("id"))
+	tagId,_ := strconv.Atoi(c.PostForm("tag_id"))
+	title := c.PostForm("title")
+    desc := c.PostForm("desc")
+    content := c.PostForm("content")
+	modifiedBy := c.PostForm("modified_by")
+	
+	valid := validation.Validation{}
+	valid.Min(id, 1, "id").Message("ID必须大于0")
+    valid.MaxSize(title, 100, "title").Message("标题最长为100字符")
+    valid.MaxSize(desc, 255, "desc").Message("简述最长为255字符")
+    valid.MaxSize(content, 65535, "content").Message("内容最长为65535字符")
+    valid.Required(modifiedBy, "modified_by").Message("修改人不能为空")
+	valid.MaxSize(modifiedBy, 100, "modified_by").Message("修改人最长为100字符")
+
+	state := -1;
+	if arg := c.PostForm("state"); arg != "" {
+        state,_= strconv.Atoi(arg)
+        valid.Range(state, 0, 1, "state").Message("状态只允许0或1")
+    }
+	code,msg := 0,"编辑成功"
+
+	if tagId>0 {
+		if !models.ExistTagByID(tagId){
+			valid.SetError("tagId","标签ID不存在")
+		}
+	}
+
+	if !valid.HasErrors() {
+		if models.ExistArticleByID(id) {
+			data := make(map[string]interface{})
+			
+			data["modified_by"] = modifiedBy
+			if title != "" {
+				data["title"] = title
+			}
+			
+			if desc != "" {
+				data["desc"] = desc
+			}
+			
+			if content != "" {
+				data["content"] = content
+			}
+			
+			if state !=-1 {
+				data["state"] = state
+			}
+
+			if tagId > 0 {
+				data["tag_id"] = tagId
+			}
+			
+			models.EditArticle(id,data)
+			
+		} else{
+			code,msg = util.CUSTOM_ERROR,"文章不存在"
+		}
+	}else{
+		code,msg = util.CUSTOM_ERROR,valid.Errors[0].Message
+	}
+
+	c.JSON(200, gin.H{
+		"error_code" : code,
+		"msg" : util.GetMsg(code,msg),
+		"data" :make(map[string]string),
+	})	
 }
 
 //删除文章
 func DeleteArticle(c *gin.Context) {
+	id,_ := strconv.Atoi(c.Param("id"))
+
+	vaild := validation.Validation{}
+	vaild.Required(id,"id").Message("ID不能为空")
+
+	code,msg := 0,"删除成功"
+
+	if !vaild.HasErrors() {
+		//
+		if models.ExistArticleByID(id) {
+			models.DeleteArticle(id);
+		}else {
+			code,msg = util.CUSTOM_ERROR,"文章ID不存在"
+		}
+	}else{
+		code,msg = util.CUSTOM_ERROR,vaild.Errors[0].Message
+	}
+
+	c.JSON(200,gin.H{
+		"error_code" : code,
+		"msg" : util.GetMsg(code,msg),
+		"data" :make(map[string]string),
+	})
 }

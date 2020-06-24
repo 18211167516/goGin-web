@@ -3,6 +3,7 @@ package routes
 import(
 	"github.com/gin-gonic/gin"
 	"gintest/App/controllers"
+	"gintest/App/middleware"
 )
 
 func InitRouter() *gin.Engine{
@@ -13,7 +14,10 @@ func InitRouter() *gin.Engine{
 		})
 	})
 
+	r.GET("/auth",controllers.GetAuth)
+
 	apiv1 := r.Group("/api/v1")
+	apiv1.Use(middleware.JWT())
     {
         //获取标签列表
         apiv1.GET("/tags", controllers.GetTags)
@@ -33,7 +37,7 @@ func InitRouter() *gin.Engine{
         //更新指定文章
         apiv1.PUT("/articles/:id", controllers.EditArticle)
         //删除指定文章
-        apiv1.DELETE("/articles/:id", controllers.DeleteArticle)
+		apiv1.DELETE("/articles/:id", controllers.DeleteArticle)
     }
 
 	return r;

@@ -18,13 +18,17 @@ var (
 	WriteTimeout  time.Duration
 	//app
 	PageSize int
-
+	JwtSecret string
+	JwtExpiresAt int
+	SigningMethod string
 	//database-mysql
 	MysqlUser string
 	MysqlPassword string
 	MysqlHost string
 	MysqlName string
 	MysqlPrefix string
+
+
 	
 )
 
@@ -54,8 +58,12 @@ func LoadApp() {
         log.Fatalf("Fail to get section 'app': %v", err)
     }
 
-    //JwtSecret = sec.Key("JWT_SECRET").MustString("!@)*#)!@U#@*!@!)")
-    PageSize = sec.Key("PAGE_SIZE").MustInt(10)
+	JwtSecret = sec.Key("JWT_SECRET").MustString("!@)*#)!@U#@*!@!)")
+	JwtExpiresAt = sec.Key("JWT_EXPIRE_TIME").MustInt(10)
+	SigningMethod = sec.Key("Jwt_Sign").MustString("SigningMethodHS256")
+	PageSize = sec.Key("PAGE_SIZE").MustInt(10)
+
+	
 }
 
 //加载http服务配置
