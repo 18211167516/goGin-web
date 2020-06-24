@@ -19,7 +19,7 @@ var (
 	//app
 	PageSize int
 	JwtSecret string
-	JwtExpiresAt int
+	JwtExpiresAt time.Duration
 	SigningMethod string
 	//database-mysql
 	MysqlUser string
@@ -59,7 +59,7 @@ func LoadApp() {
     }
 
 	JwtSecret = sec.Key("JWT_SECRET").MustString("!@)*#)!@U#@*!@!)")
-	JwtExpiresAt = sec.Key("JWT_EXPIRE_TIME").MustInt(10)
+	JwtExpiresAt = time.Duration(sec.Key("JWT_EXPIRE_TIME").MustInt(10))*time.Minute
 	SigningMethod = sec.Key("Jwt_Sign").MustString("SigningMethodHS256")
 	PageSize = sec.Key("PAGE_SIZE").MustInt(10)
 
