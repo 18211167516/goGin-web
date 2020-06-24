@@ -1,10 +1,10 @@
 package middleware
 
 import (
-    "time"
     "net/http"
 
     "github.com/gin-gonic/gin"
+    jwt "github.com/dgrijalva/jwt-go"
 
     "gintest/util"
 )
@@ -19,12 +19,15 @@ func JWT() gin.HandlerFunc {
         if token == "" {
             code = util.ERROR_AUTH_CHECK_TOKEN_EMPTY
         } else {
-            claims, err := util.ParseToken(token)
-            if err != nil {
-                code = util.ERROR_AUTH_CHECK_TOKEN_FAIL
-            } else if time.Now().Unix() > claims.ExpiresAt {
-                code = util.ERROR_AUTH_CHECK_TOKEN_TIMEOUT
-            }
+            _, err := util.ParseToken(token)
+			if err != nil {
+				switch err.(*jwt.ValidationError).Errors {
+				case jwt.ValidationErrorExpired:
+					code = util.ERROR_AUTH_CHECK_TOKEN_TIMEOUT
+				default:
+					code = util.ERROR_AUTH_CHECK_TOKEN_FAIL
+				}
+			}
         }
 
         if code != util.SUCCESS {

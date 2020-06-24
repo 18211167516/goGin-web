@@ -1,11 +1,5 @@
 package models
 
-import (
-    "time"
-
-    "github.com/jinzhu/gorm"
-)
-
 type Article struct {
     Model
 
@@ -75,16 +69,4 @@ func EditArticle(id int, data interface {}) bool {
     db.Model(&Article{}).Where("id = ?", id).Updates(data)
 
     return true
-}
-
-func (article *Article) BeforeCreate(scope *gorm.Scope) error {
-    scope.SetColumn("CreatedOn", time.Now().Unix())
-
-    return nil
-}
-
-func (article *Article) BeforeUpdate(scope *gorm.Scope) error {
-    scope.SetColumn("ModifiedOn", time.Now().Unix())
-
-    return nil
 }

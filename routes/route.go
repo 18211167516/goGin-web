@@ -1,18 +1,27 @@
 package routes
 
-import(
+import (
 	"github.com/gin-gonic/gin"
+	"github.com/swaggo/gin-swagger"
+	"github.com/swaggo/gin-swagger/swaggerFiles"
+
+	_"gintest/docs"
 	"gintest/App/controllers"
 	"gintest/App/middleware"
 )
 
 func InitRouter() *gin.Engine{
+	//同时向文件和控制台写入日志
+	//f, _ := os.Create("gin.log")
+	//gin.DefaultWriter = io.MultiWriter(f, os.Stdout)
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
 	})
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	r.GET("/auth",controllers.GetAuth)
 

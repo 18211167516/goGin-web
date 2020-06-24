@@ -8,7 +8,7 @@ import (
     "gintest/config"
 )
 
-var jwtSecret = []byte(config.JwtSecret)
+var jwtSecret = []byte(config.AppSetting.JwtSecret)
 
 type Claims struct {
     Username string `json:"username"`
@@ -18,7 +18,7 @@ type Claims struct {
 
 func GenerateToken(username, password string) (string, error) {
     nowTime := time.Now()
-    expireTime := nowTime.Add(config.JwtExpiresAt)
+    expireTime := nowTime.Add(config.AppSetting.JwtExpiresAt)
 
     claims := Claims{
         username,
@@ -29,7 +29,7 @@ func GenerateToken(username, password string) (string, error) {
         },
     }
 
-    tokenClaims := jwt.NewWithClaims(jwt.GetSigningMethod(config.SigningMethod), claims)
+    tokenClaims := jwt.NewWithClaims(jwt.GetSigningMethod(config.AppSetting.SigningMethod), claims)
     token, err := tokenClaims.SignedString(jwtSecret)
 
     return token, err

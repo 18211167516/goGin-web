@@ -8,5 +8,5 @@ import (
 
 func main() {
 	r := routes.InitRouter()
-	r.Run(fmt.Sprintf("%s:%d",config.HttpAddress,config.HttpPort))
+	r.Run(fmt.Sprintf("%s:%d",config.ServerSetting.HttpAddress,config.ServerSetting.HttpPort))
 }

@@ -3,6 +3,7 @@ package models
 import (
     "log"
     "fmt"
+    "time"
 
     "github.com/jinzhu/gorm"
     _ "github.com/jinzhu/gorm/dialects/mysql"
@@ -26,11 +27,11 @@ func init() {
 
 
     dbType = "mysql"
-    dbName = config.MysqlName
-    user = config.MysqlUser
-    password = config.MysqlPassword
-    host = config.MysqlHost
-    tablePrefix = config.MysqlPrefix
+    dbName = config.DatabaseSetting.MysqlName
+    user = config.DatabaseSetting.MysqlUser
+    password = config.DatabaseSetting.MysqlPassword
+    host = config.DatabaseSetting.MysqlHost
+    tablePrefix = config.DatabaseSetting.MysqlPrefix
 
     db, err = gorm.Open(dbType, fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local", 
         user, 
@@ -53,4 +54,15 @@ func init() {
 
 func CloseDB() {
     defer db.Close()
+}
+
+func (model *Model) BeforeCreate(scope *gorm.Scope) error {
+    scope.SetColumn("CreatedOn", time.Now().Unix())
+
+    return nil
+}
+
+func (model *Model) BeforeUpdate(scope *gorm.Scope) error {
+    scope.SetColumn("ModifiedOn", time.Now().Unix())
+    return nil
 }
