@@ -10,6 +10,11 @@ import (
 	"github.com/astaxie/beego/validation"
 )
 
+type Addtag struct {
+	Name string `json:"name" from:"name" binding:"required"` 
+	State int `json:"state" from:"state" binding:"min=0,max=1"`
+}
+
 //获取多个文章标签
 func GetTags(c *gin.Context) {
 	name := c.Query("name")
@@ -44,7 +49,7 @@ func GetTags(c *gin.Context) {
 // @Success 200 {string} json "{"code":200,"data":{},"msg":"ok"}"
 // @Router /api/v1/tags [post]
 func AddTag(c *gin.Context) {
-	name := c.PostForm("name")
+	/* name := c.PostForm("name")
 	state,_:= strconv.Atoi(c.DefaultPostForm("state","0"))
 	
 	valid := validation.Validation{}
@@ -63,6 +68,21 @@ func AddTag(c *gin.Context) {
 
 	}else{
 		code,msg = util.CUSTOM_ERROR,valid.Errors[0].Message
+	} */
+
+	tag := Addtag{}
+
+	code,msg := util.SUCCESS,"添加成功"
+	//接收请求参数
+	err := c.ShouldBind(&tag)
+	if err != nil {
+		code,msg = util.CUSTOM_ERROR,err.Error()
+	}else{
+		if ! models.ExistTagByName(tag.Name) {
+			models.AddTag(tag.Name, tag.State)
+		} else{
+			code,msg = util.CUSTOM_ERROR,"标签名已存在"
+		}
 	}
 
 	c.JSON(200, gin.H{

@@ -1,0 +1,19 @@
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /ping                     --> gintest/routes.InitRouter.func1 (3 handlers)
+[GIN-debug] GET    /auth                     --> gintest/App/controllers.GetAuth (3 handlers)
+[GIN-debug] GET    /api/v1/tags              --> gintest/App/controllers.GetTags (4 handlers)
+[GIN-debug] POST   /api/v1/tags              --> gintest/App/controllers.AddTag (4 handlers)
+[GIN-debug] PUT    /api/v1/tags/:id          --> gintest/App/controllers.EditTag (4 handlers)
+[GIN-debug] DELETE /api/v1/tags/:id          --> gintest/App/controllers.DeleteTag (4 handlers)
+[GIN-debug] GET    /api/v1/articles          --> gintest/App/controllers.GetArticles (4 handlers)
+[GIN-debug] GET    /api/v1/articles/:id      --> gintest/App/controllers.GetArticle (4 handlers)
+[GIN-debug] POST   /api/v1/articles          --> gintest/App/controllers.AddArticle (4 handlers)
+[GIN-debug] PUT    /api/v1/articles/:id      --> gintest/App/controllers.EditArticle (4 handlers)
+[GIN-debug] DELETE /api/v1/articles/:id      --> gintest/App/controllers.DeleteArticle (4 handlers)
+[GIN-debug] Listening and serving HTTP on 0.0.0.0:8080
+[GIN] 2020/06/24 - 16:14:12 | 401 |            0s |       127.0.0.1 | GET      "/api/v1/articles?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QiLCJwYXNzd29yZCI6InRlc3QxMjM0NTYiLCJleHAiOjE1OTI5ODQxODUsImlzcyI6ImdpbnRlc3QifQ.UtQiSWFzo1hLWI-sr7vmi8qDVOx80rbkF-L6wt-MN4s"
