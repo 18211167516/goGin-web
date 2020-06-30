@@ -7,7 +7,8 @@ import (
 
 	_"gintest/docs"
 	"gintest/App/controllers"
-	"gintest/App/middleware"
+	_"gintest/App/middleware"
+	"gintest/config"
 )
 
 func InitRouter() *gin.Engine{
@@ -15,6 +16,14 @@ func InitRouter() *gin.Engine{
 	//f, _ := os.Create("gin.log")
 	//gin.DefaultWriter = io.MultiWriter(f, os.Stdout)
 	r := gin.Default()
+	r.LoadHTMLGlob(config.AppSetting.Template)
+
+	r.GET("/index", func(c *gin.Context) {
+		// 子目录的模版文件，需要加上目录名，例如：posts/index.tmpl
+		c.HTML(200, "index/index", gin.H{
+			"title": "Posts",
+		})
+	})
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
@@ -26,7 +35,7 @@ func InitRouter() *gin.Engine{
 	r.GET("/auth",controllers.GetAuth)
 
 	apiv1 := r.Group("/api/v1")
-	apiv1.Use(middleware.JWT())
+	//apiv1.Use(middleware.JWT())
     {
         //获取标签列表
         apiv1.GET("/tags", controllers.GetTags)
@@ -47,7 +56,8 @@ func InitRouter() *gin.Engine{
         apiv1.PUT("/articles/:id", controllers.EditArticle)
         //删除指定文章
 		apiv1.DELETE("/articles/:id", controllers.DeleteArticle)
-    }
+	}
+	
 
 	return r;
 }

@@ -6,22 +6,27 @@ import (
 	"github.com/gin-gonic/gin"
 	"gintest/App/models"
 	"gintest/util"
+	"gintest/App/services"
 
 	"github.com/astaxie/beego/validation"
 )
 
 type Addtag struct {
-	Name string `json:"name" from:"name" binding:"required"` 
-	State int `json:"state" from:"state" binding:"min=0,max=1"`
+	Name string `json:"Name" from:"name" binding:"required"` 
+	State int `json:"State" from:"state" binding:"min=0,max=1"`
 }
 
+var tagServer services.TagContract
+
+func init(){
+	tagServer = &services.TagService{}
+}
 //获取多个文章标签
 func GetTags(c *gin.Context) {
 	name := c.Query("name")
 	state:= c.Query("state");
 
     maps := make(map[string]interface{})
-    data := make(map[string]interface{})
 
     if name != "" {
         maps["name"] = name
@@ -31,8 +36,7 @@ func GetTags(c *gin.Context) {
         maps["state"] = state
     }
 
-    data["lists"] = models.GetTags(util.GetPage(c), 10, maps)
-    data["total"] = models.GetTagTotal(maps)
+    data := tagServer.GetTags(maps,c)
 
     c.JSON(200, gin.H{
         "error_code" : 0,
@@ -49,26 +53,6 @@ func GetTags(c *gin.Context) {
 // @Success 200 {string} json "{"code":200,"data":{},"msg":"ok"}"
 // @Router /api/v1/tags [post]
 func AddTag(c *gin.Context) {
-	/* name := c.PostForm("name")
-	state,_:= strconv.Atoi(c.DefaultPostForm("state","0"))
-	
-	valid := validation.Validation{}
-    valid.Required(name, "name").Message("名称不能为空")
-    valid.MaxSize(name, 100, "name").Message("名称最长为100字符")
-	valid.Range(state, 0, 1, "state").Message("状态只允许0或1")
-	
-	code,msg := util.SUCCESS,"添加成功"
-
-	if ! valid.HasErrors() {
-        if ! models.ExistTagByName(name) {
-			models.AddTag(name, state)
-		} else{
-			code,msg = util.CUSTOM_ERROR,"标签名已存在"
-		}
-
-	}else{
-		code,msg = util.CUSTOM_ERROR,valid.Errors[0].Message
-	} */
 
 	tag := Addtag{}
 
@@ -78,10 +62,15 @@ func AddTag(c *gin.Context) {
 	if err != nil {
 		code,msg = util.CUSTOM_ERROR,err.Error()
 	}else{
-		if ! models.ExistTagByName(tag.Name) {
-			models.AddTag(tag.Name, tag.State)
-		} else{
-			code,msg = util.CUSTOM_ERROR,"标签名已存在"
+		maps := make(map[string]interface{})
+		maps["name"] = tag.Name
+		ret := tagServer.AddTag(maps,util.StructToMap(tag))
+		if !ret["status"].(bool) {
+			if ret["msg"].(string)=="" {
+				code,msg = util.CUSTOM_ERROR,"添加tag失败"
+			} else {
+				code,msg = util.CUSTOM_ERROR,ret["msg"].(string)
+			}
 		}
 	}
 

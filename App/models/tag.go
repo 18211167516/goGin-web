@@ -21,9 +21,9 @@ func GetTagTotal(maps interface {}) (count int){
     return
 }
 
-func ExistTagByName(name string) bool {
+func ExistTagByMaps(maps interface{}) bool {
     var tag Tag
-    db.Select("id").Where("name = ?", name).First(&tag)
+    db.Select("id").Where(maps).First(&tag)
     if tag.ID > 0 {
         return true
     }
@@ -31,10 +31,10 @@ func ExistTagByName(name string) bool {
     return false
 }
 
-func AddTag(name string, state int) bool{
+func AddTag(tags map[string]interface{}) bool{
      db.Create(&Tag {
-        Name : name,
-        State : state,
+        Name : tags["Name"].(string),
+        State : tags["State"].(int),
         CreatedBy : "白翀华",
     })
     return true
