@@ -24,7 +24,6 @@ func (g *Gin) ApiReturn(code int,msg string,data interface{}) {
 	Headtype := g.C.GetHeader("Response-type")
 	obj,httCode := gin.H{
 		"error_code" : code,
-		"type":Headtype,
 		"msg" : GetMsg(code,msg),
 		"data" : data,
 	},200

@@ -2,7 +2,8 @@ package controllers
 
 import (
 	"strconv"
-
+	"fmt"
+	
 	"github.com/gin-gonic/gin"
 	"gintest/App/models"
 	"gintest/util"
@@ -36,13 +37,10 @@ func GetTags(c *gin.Context) {
         maps["state"] = state
     }
 
+	fmt.Printf("%v",maps)
     data := tagServer.GetTags(maps,c)
 
-    c.JSON(200, gin.H{
-        "error_code" : 0,
-        "msg" : "查询成功",
-        "data" : data,
-    })
+    util.ApiAutoReturn(c,0,"查询成功",data)
 }
 
 // @Summary 新增文章标签
@@ -74,11 +72,7 @@ func AddTag(c *gin.Context) {
 		}
 	}
 
-	c.JSON(200, gin.H{
-		"error_code" : code,
-		"msg" : util.GetMsg(code,msg),
-		"data" : make(map[string]string),
-	})
+	util.ApiAutoReturn(c,code,msg,nil)
 }
 
 //修改文章标签
@@ -112,11 +106,7 @@ func EditTag(c *gin.Context) {
 		code,msg = util.CUSTOM_ERROR,valid.Errors[0].Message
 	}
 
-	c.JSON(200, gin.H{
-		"error_code" : code,
-		"msg" : util.GetMsg(code,msg),
-		"data" :make(map[string]string),
-	})
+	util.ApiAutoReturn(c,code,msg,nil)
 	
 }
 
@@ -138,9 +128,5 @@ func DeleteTag(c *gin.Context) {
 		code,msg = util.CUSTOM_ERROR,valid.Errors[0].Message
 	}
 
-	c.JSON(200, gin.H{
-		"code" : code,
-		"msg" : util.GetMsg(code,msg),
-		"data" :make(map[string]string),
-	})
+	util.ApiAutoReturn(c,code,msg,nil)
 }
