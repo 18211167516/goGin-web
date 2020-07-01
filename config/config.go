@@ -42,9 +42,9 @@ var (
 	RunMode string
 )
 
-func init() {
+func InitConfig(iniPath string) {
 	var err error
-	Cfg, err = ini.Load("./config/app.ini")
+	Cfg, err = ini.Load(iniPath)
     if err != nil {
         fmt.Printf("Fail to read file: %v", err)
         os.Exit(1)

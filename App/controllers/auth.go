@@ -42,9 +42,5 @@ func GetAuth(c *gin.Context) {
         code,msg = util.CUSTOM_ERROR,valid.Errors[0].Message
     }
 
-    c.JSON(200, gin.H{
-        "error_code" : code,
-        "msg" : util.GetMsg(code,msg),
-        "data" : data,
-    })
+    util.ApiAutoReturn(c,code,msg,data)
 }
