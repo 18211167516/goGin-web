@@ -1,4 +1,5 @@
 gintest.exe
 .vscode
-
+config/app.ini
+App/models/db.go
 
