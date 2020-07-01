@@ -61,12 +61,7 @@ func init() {
 
 func DefaultConfig() {
     DConfig = &DbConfig{
-        dbType:"mysql",
-        dbName:"test",
-        user:"root",
-        password:"123456",
-        host:"122.51.88.27:3306",
-        tablePrefix:"test_",
+        
     }
 
     if unsafe.Sizeof(config.DatabaseSetting) >8 {
