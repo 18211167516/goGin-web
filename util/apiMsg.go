@@ -18,8 +18,8 @@ const (
 var MsgFlags = map[int]string {
     SUCCESS : "%s",
     ERROR : "%s",
-    INVALID_PARAMS : "请求%s参数错误",
-    CUSTOM_ERROR : "%s错误",
+    INVALID_PARAMS : "参数%s错误",
+    CUSTOM_ERROR : "%s",
     ERROR_AUTH_CHECK_TOKEN_FAIL : "Token鉴权失败",
     ERROR_AUTH_CHECK_TOKEN_TIMEOUT : "Token已超时",
     ERROR_AUTH_TOKEN : "Token生成失败",

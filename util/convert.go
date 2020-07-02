@@ -3,7 +3,20 @@ package util
 import (
     "reflect"
     "strconv"
+    "encoding/json"
+    //"fmt"
 )
+
+
+func JsonToStruct(data []byte,s interface{}) error {
+    err := json.Unmarshal(data,s)
+    if err != nil {
+        //err = fmt.Sprintf("Json marshaling failed：%s", err)
+        return err
+    }
+
+    return nil
+} 
 
 func StringToInt(str string) int{
     variable,_  := strconv.Atoi(str)

@@ -3,12 +3,8 @@ package tests
 import (
     "testing"
     "fmt"
-    "net/http"
-    "net/http/httptest"
 
     "gintest/util"
-
-    "github.com/gin-gonic/gin"
 )
 
 func TestStringToInt(t *testing.T) {
@@ -21,17 +17,18 @@ func TestStringToInt(t *testing.T) {
     } 
 }
 
-func TestApiReturn(t *testing.T) {
+func TestJsonToStruct(t *testing.T) {
+    var s = struct{
+        Name string `json:"name"`
+        Age int `json:"age"`
+    }{}
 
-    gin.SetMode(gin.TestMode)
+    str  := `{"name":123","age":20}`
+    err := util.JsonToStruct([]byte(str),&s)
+    if err !=nil {
+        fmt.Println("Umarshal failed:", err)
+        return
+    }
 
-    w := httptest.NewRecorder()
-    c, _ := gin.CreateTestContext(w)
-    c.Request, _ = http.NewRequest("GET", "/aaa", nil)
-    c.Request.Header.Set("Response-type", "xml")
-
-    util.ApiAutoReturn(c,40001,"自定义错误","123")
-    fmt.Printf("%s",w.Body.String())
-    fmt.Println()
+    fmt.Printf("name=%s,age=%d",s.Name,s.Age)
 }
-

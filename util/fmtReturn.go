@@ -8,8 +8,18 @@ type Gin struct {
     C *gin.Context
 }
 
+type APIH struct{
+	Error_code int `json:"error_code"`
+	Msg  string `json:"msg"`
+	Data  interface{} `json:"data"`
+}
+
 func NewGin(c *gin.Context) Gin {
 	return Gin{c}
+}
+
+func NewAPIH() *APIH {
+	return &APIH{}
 }
 
 func ApiAutoReturn(c *gin.Context,code int,msg string,data interface{}) {
@@ -22,6 +32,7 @@ func ApiAutoReturn(c *gin.Context,code int,msg string,data interface{}) {
 
 func (g *Gin) ApiReturn(code int,msg string,data interface{}) {
 	Headtype := g.C.GetHeader("Response-type")
+
 	obj,httCode := gin.H{
 		"error_code" : code,
 		"msg" : GetMsg(code,msg),

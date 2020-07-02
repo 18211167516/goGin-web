@@ -6,9 +6,12 @@ import (
 	"os"
 
 	"gintest/config"
+	"github.com/gin-gonic/gin"
 )
 
+
 func setup() {
+	gin.SetMode(gin.TestMode)
 	config.InitConfig("../config/app.ini")
 	fmt.Println("Before all tests")
 }

@@ -13,8 +13,8 @@ import (
 )
 
 type Addtag struct {
-	Name string `json:"Name" from:"name" binding:"required"` 
-	State int `json:"State" from:"state" binding:"min=0,max=1"`
+	Name string `json:"name" from:"name" binding:"required"` 
+	State int `json:"state" from:"state" binding:"min=0,max=1"`
 }
 
 var tagServer services.TagContract

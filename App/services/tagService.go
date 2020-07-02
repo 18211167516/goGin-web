@@ -38,7 +38,7 @@ func (T TagService) GetTags(maps map[string]interface{},c *gin.Context) map[stri
 func (T TagService) AddTag(maps map[string]interface{},data map[string]interface{}) map[string]interface{} {
 	//先通过maps查询数据是否存在
 	if(T.ExistTag(maps)){
-		return util.DataReturn(false,"已存在",nil)
+		return util.DataReturn(false,"记录已存在",nil)
 	}else{
 		return util.DataReturn(models.AddTag(data),"",nil)
 	}
