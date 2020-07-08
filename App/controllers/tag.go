@@ -5,11 +5,11 @@ import (
 	"fmt"
 	
 	"github.com/gin-gonic/gin"
-	"gintest/App/models"
+	"github.com/astaxie/beego/validation"
+
 	"gintest/util"
 	"gintest/App/services"
 
-	"github.com/astaxie/beego/validation"
 )
 
 type Addtag struct {
@@ -38,9 +38,13 @@ func GetTags(c *gin.Context) {
     }
 
 	fmt.Printf("%v",maps)
-    data := tagServer.GetTags(maps,c)
+	ret := tagServer.GetTags(maps,c)
+	if !ret.GetStatus() {
+		util.ApiAutoReturn(c,40001,"查询失败",nil)
+	} else{
+		util.ApiAutoReturn(c,0,"查询成功",ret["data"])
+	}
 
-    util.ApiAutoReturn(c,0,"查询成功",data)
 }
 
 // @Summary 新增文章标签
@@ -63,11 +67,11 @@ func AddTag(c *gin.Context) {
 		maps := make(map[string]interface{})
 		maps["name"] = tag.Name
 		ret := tagServer.AddTag(maps,util.StructToMap(tag))
-		if !ret["status"].(bool) {
-			if ret["msg"].(string)=="" {
+		if !ret.GetStatus() {
+			if ret.GetMsg()=="" {
 				code,msg = util.CUSTOM_ERROR,"添加tag失败"
 			} else {
-				code,msg = util.CUSTOM_ERROR,ret["msg"].(string)
+				code,msg = util.CUSTOM_ERROR,ret.GetMsg()
 			}
 		}
 	}
@@ -80,6 +84,8 @@ func EditTag(c *gin.Context) {
 	var data = make(map[string]interface{})
 	id,_:= strconv.Atoi(c.Param("id"))
 	name := c.PostForm("name")
+
+
 	valid := validation.Validation{}
 	state := -1;
 	if arg := c.PostForm("state"); arg != "" {
@@ -87,20 +93,19 @@ func EditTag(c *gin.Context) {
         valid.Range(state, 0, 1, "state").Message("状态只允许0或1")
     }
 	valid.Required(id,"id").Message("ID不能为空")
-	valid.MaxSize(name, 100, "name").Message("名称最长为100字符")
+	valid.MaxSize(name, 10, "name").Message("名称最长为10字符")
 
-	code,msg:= util.SUCCESS,"编辑标签成功"
+	code,msg:= util.SUCCESS,"编辑成功"
 	if ! valid.HasErrors() {
-        if models.ExistTagByID(id) {
-			if(name != ""){
-				data["name"] = name;
-			}
-			if(state != -1){
-				data["state"] = state;
-			}
-			models.EditTag(id, data)
-		} else{
-			code,msg = util.CUSTOM_ERROR,"ID不存在";
+		if(name != ""){
+			data["name"] = name;
+		}
+		if(state != -1){
+			data["state"] = state;
+		}
+		ret := tagServer.EditTag(id,data)
+		if !ret.GetStatus(){
+			code,msg = util.CUSTOM_ERROR,ret.GetMsg()
 		}
 	}else{
 		code,msg = util.CUSTOM_ERROR,valid.Errors[0].Message
@@ -117,12 +122,17 @@ func DeleteTag(c *gin.Context) {
 	valid := validation.Validation{}
 	valid.Required(id,"id").Message("ID不能为空")
 
-	code,msg:= util.SUCCESS,"删除标签成功"
+	code,msg:= util.SUCCESS,"删除成功"
 	if ! valid.HasErrors() {
-        if models.ExistTagByID(id) {
-			models.DeleteTag(id)
-		} else{
-			code,msg = util.CUSTOM_ERROR,"ID不存在";
+		maps := make(map[string]interface{})
+		maps["id"] = id
+		ret := tagServer.DeleteTag(maps)
+        if !ret.GetStatus() {
+			if ret.GetMsg()=="" {
+				code,msg = util.CUSTOM_ERROR,"删除失败"
+			} else {
+				code,msg = util.CUSTOM_ERROR,ret.GetMsg()
+			}
 		}
 	}else{
 		code,msg = util.CUSTOM_ERROR,valid.Errors[0].Message

@@ -29,7 +29,7 @@ func PerformRequest(mothod,url,content_type string,body io.Reader) (c *gin.Conte
     c, _ = gin.CreateTestContext(w)
     r = httptest.NewRequest(mothod, url, body)
     c.Request = r
-    c.Request.Header.Add("Content-Type", content_type)
+    c.Request.Header.Set("Content-Type", content_type)
     router.ServeHTTP(w,r)
     return
 }

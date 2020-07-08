@@ -8,8 +8,16 @@ type Gin struct {
     C *gin.Context
 }
 
+type M map[string]interface{}
+
 type APIH struct{
 	Error_code int `json:"error_code"`
+	Msg  string `json:"msg"`
+	Data  interface{} `json:"data"`
+}
+
+type RetData struct{
+	Status bool `json:"status"`
 	Msg  string `json:"msg"`
 	Data  interface{} `json:"data"`
 }
@@ -18,8 +26,12 @@ func NewGin(c *gin.Context) Gin {
 	return Gin{c}
 }
 
-func NewAPIH() *APIH {
-	return &APIH{}
+func NewRetData(status bool,msg string,data interface{}) RetData{
+	return RetData{status,msg,data}
+}
+
+func NewAPIH() APIH {
+	return APIH{}
 }
 
 func ApiAutoReturn(c *gin.Context,code int,msg string,data interface{}) {
@@ -50,10 +62,19 @@ func (g *Gin) ApiReturn(code int,msg string,data interface{}) {
 }
 
 
-func DataReturn(status bool,msg string,data interface{}) map[string]interface{}{
-	result := make(map[string]interface{})
-	result["status"] = status
-	result["msg"]    = msg
-	result["data"]   = data
+func DataReturn(status bool,msg string,data interface{}) M{
+	result :=M{
+		"status" : status,
+		"msg" : msg,
+		"data" : data,
+	}
 	return result
+}
+
+func (m M) GetStatus() bool{
+	return m["status"].(bool)
+}
+
+func (m M) GetMsg() string{
+	return m["msg"].(string)
 }

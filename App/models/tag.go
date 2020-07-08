@@ -50,8 +50,8 @@ func ExistTagByID(id int) bool {
     return false
 }
 
-func DeleteTag(id int) bool {
-    db.Where("id = ?", id).Delete(&Tag{})
+func DeleteTag(maps interface{}) bool {
+    db.Where(maps).Delete(&Tag{})
 
     return true
 }

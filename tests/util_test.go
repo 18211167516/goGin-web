@@ -32,3 +32,10 @@ func TestJsonToStruct(t *testing.T) {
 
     fmt.Printf("name=%s,age=%d",s.Name,s.Age)
 }
+
+func TestRetData(t *testing.T) {
+    data := make(map[string]interface{})
+    data["name"]= "123"
+    ret := util.DataReturn(true,"查询成功",data)
+    fmt.Printf("状态返回：%t;错误信息返回:%s;数据=%v",ret.GetStatus(),ret.GetMsg(),ret["data"])
+}
