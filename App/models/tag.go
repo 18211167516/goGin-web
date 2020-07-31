@@ -32,12 +32,13 @@ func ExistTagByMaps(maps interface{}) bool {
 }
 
 func AddTag(tags map[string]interface{}) bool{
-     db.Create(&Tag {
+    tag := Tag {
         Name : tags["Name"].(string),
         State : tags["State"].(int),
         CreatedBy : "白翀华",
-    })
-    return true
+    }
+    db.Create(&tag)
+    return !db.NewRecord(tag)
 }
 
 func ExistTagByID(id int) bool {

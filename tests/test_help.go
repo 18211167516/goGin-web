@@ -21,6 +21,8 @@ type TestCase struct{
     errMsg string //错误信息
     url string //链接
     content_type string //
+    ext1 interface{}//自定义1
+    ext2 interface{}//自定义2
 }
 
 func PerformRequest(mothod,url,content_type string,body io.Reader) (c *gin.Context,r *http.Request ,w *httptest.ResponseRecorder){

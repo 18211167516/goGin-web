@@ -1,13 +1,17 @@
 package config
 
+
 import (
 	"gopkg.in/ini.v1"
 	"log"
 	"fmt"
 	"os"
 	"time"
+	"errors"
+	"runtime"
 )
 
+//app struct
 type App struct {
 	Template string
 	PageSize int
@@ -18,6 +22,7 @@ type App struct {
 
 var AppSetting = &App{}
 
+//server struct
 type Server struct {
 	HttpAddress string
 	HttpPort int
@@ -27,7 +32,8 @@ type Server struct {
 
 var ServerSetting = &Server{}
 
-type Database struct {
+//Mysql struct
+type Mysql struct {
 	MysqlUser string
 	MysqlPassword string
 	MysqlHost string
@@ -35,14 +41,34 @@ type Database struct {
 	MysqlPrefix string
 }
 
-var DatabaseSetting = &Database{}
+var MysqlSetting = &Mysql{}
 
 var (
 	Cfg *ini.File
 	RunMode string
+	configPathError = errors.New("Can not get current file info")
+	currentPath string = currentFile()
 )
 
-func InitConfig(iniPath string) {
+//get config path Single
+func getConfigPath(path string) (file string){
+	return fmt.Sprintf("%s/%s",path,"app.ini")
+}
+
+func init(){
+	InitConfig()
+}
+
+func currentFile() string {
+	_, file, _, ok := runtime.Caller(1)
+	if !ok {
+		panic(configPathError)
+	}
+	return fmt.Sprintf("%s/..",file)
+}
+
+func InitConfig() {
+	iniPath := getConfigPath(currentPath)
 	var err error
 	Cfg, err = ini.Load(iniPath)
     if err != nil {
@@ -88,8 +114,8 @@ func LoadServer() {
         log.Fatalf("Cfg.MapTo ServerSetting err: %v", err)
     }
 
-    ServerSetting.ReadTimeout = time.Duration(sec.Key("READ_TIMEOUT").MustInt(60)) * time.Second
-    ServerSetting.WriteTimeout =  time.Duration(sec.Key("WRITE_TIMEOUT").MustInt(60)) * time.Second 
+    ServerSetting.ReadTimeout = time.Duration(sec.Key("ReadTimeout").MustInt(60)) * time.Second
+    ServerSetting.WriteTimeout =  time.Duration(sec.Key("WriteTimeout").MustInt(60)) * time.Second 
 }
 
 //加载数据库配置
@@ -99,9 +125,9 @@ func LoadDatabase() {
         log.Fatalf("Fail to get section 'app': %v", err)
     }
 
-	err = sec.MapTo(DatabaseSetting)
+	err = sec.MapTo(MysqlSetting)
 	if err != nil {
-        log.Fatalf("Cfg.MapTo DatabaseSetting err: %v", err)
+        log.Fatalf("Cfg.MapTo MysqlSetting err: %v", err)
 	}
 }
 

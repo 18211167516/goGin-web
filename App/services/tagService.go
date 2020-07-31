@@ -16,7 +16,7 @@ type TagContract interface {
 }
 
 type TagGetsContract interface {
-	GetTags(maps map[string]interface{},c *gin.Context) util.M
+	GetTags(maps interface {},c *gin.Context) util.M
 }
 
 type TagAddContract interface {
@@ -38,7 +38,7 @@ type TagEditContract interface {
 type TagService struct {
 }
 
-func (T TagService) GetTags(maps map[string]interface{},c *gin.Context) util.M {
+func (T TagService) GetTags(maps interface {},c *gin.Context) util.M {
 	data := make(map[string]interface{})
 	data["lists"] = models.GetTags(util.GetPage(c), 10, maps)
 	data["total"] = models.GetTagTotal(maps)

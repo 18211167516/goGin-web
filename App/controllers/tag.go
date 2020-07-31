@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"strconv"
-	"fmt"
 	
 	"github.com/gin-gonic/gin"
 	"github.com/astaxie/beego/validation"
@@ -12,9 +11,13 @@ import (
 
 )
 
-type Addtag struct {
-	Name string `json:"name" from:"name" binding:"required"` 
-	State int `json:"state" from:"state" binding:"min=0,max=1"`
+type Tag struct {
+	Name string `json:"name" form:"name" binding:"required"` 
+	State int `json:"state" form:"state" binding:"min=0,max=1"`
+}
+
+type TagId struct{
+	Id int `uri:"id" binding:"required"`
 }
 
 var tagServer services.TagContract
@@ -24,26 +27,20 @@ func init(){
 }
 //获取多个文章标签
 func GetTags(c *gin.Context) {
-	name := c.Query("name")
-	state:= c.Query("state");
+	tag := Tag{}
 
-    maps := make(map[string]interface{})
-
-    if name != "" {
-        maps["name"] = name
-    }
-
-    if state != "" {
-        maps["state"] = state
-    }
-
-	fmt.Printf("%v",maps)
-	ret := tagServer.GetTags(maps,c)
-	if !ret.GetStatus() {
-		util.ApiAutoReturn(c,40001,"查询失败",nil)
-	} else{
-		util.ApiAutoReturn(c,0,"查询成功",ret["data"])
+	err := c.ShouldBind(&tag)
+	if err == nil {
+		ret := tagServer.GetTags(tag,c)
+		if !ret.GetStatus() {
+			util.ApiAutoReturn(c,40001,"查询失败",nil)
+		} else{
+			util.ApiAutoReturn(c,0,"查询成功",ret["data"])
+		}
+	} else {
+		util.ApiAutoReturn(c,500,err.Error(),nil)
 	}
+
 
 }
 
@@ -56,7 +53,7 @@ func GetTags(c *gin.Context) {
 // @Router /api/v1/tags [post]
 func AddTag(c *gin.Context) {
 
-	tag := Addtag{}
+	tag := Tag{}
 
 	code,msg := util.SUCCESS,"添加成功"
 	//接收请求参数
@@ -82,7 +79,7 @@ func AddTag(c *gin.Context) {
 //修改文章标签
 func EditTag(c *gin.Context) {
 	var data = make(map[string]interface{})
-	id,_:= strconv.Atoi(c.Param("id"))
+	id := util.StringToInt(c.Param("id"))
 	name := c.PostForm("name")
 
 
@@ -117,13 +114,31 @@ func EditTag(c *gin.Context) {
 
 //删除文章标签
 func DeleteTag(c *gin.Context) {
-	id,_:= strconv.Atoi(c.Param("id"))
+
+	tag := TagId{}
+	/* id := util.StringToInt(c.Param("id"))
 
 	valid := validation.Validation{}
-	valid.Required(id,"id").Message("ID不能为空")
-
+	valid.Required(id,"id").Message("ID不能为空") */
 	code,msg:= util.SUCCESS,"删除成功"
-	if ! valid.HasErrors() {
+	err := c.ShouldBindUri(&tag)
+	if err != nil {
+		code,msg = util.CUSTOM_ERROR,err.Error()
+	}else{
+		maps := make(map[string]interface{})
+		maps["id"] = tag.Id
+		ret := tagServer.DeleteTag(maps)
+        if !ret.GetStatus() {
+			if ret.GetMsg()=="" {
+				code,msg = util.CUSTOM_ERROR,"删除失败"
+			} else {
+				code,msg = util.CUSTOM_ERROR,ret.GetMsg()
+			}
+		}
+	}
+
+	
+	/* if ! valid.HasErrors() {
 		maps := make(map[string]interface{})
 		maps["id"] = id
 		ret := tagServer.DeleteTag(maps)
@@ -136,7 +151,7 @@ func DeleteTag(c *gin.Context) {
 		}
 	}else{
 		code,msg = util.CUSTOM_ERROR,valid.Errors[0].Message
-	}
+	} */
 
 	util.ApiAutoReturn(c,code,msg,nil)
 }
